@@ -50,6 +50,8 @@ Although, this approach adds an overhead of classifying the input during ingesti
     - Redirect to different app-routes - eg: queries not related to user shouldn’t even go through the RAG pipeline
         - Scalability - If in the future, we wanted to connect the QnA system to other ERP systems like Attendance, Performance, Payroll etc or any other source of structured data.
 
+During the runtime, the name of the person is also extracted from the query. Currenly there are only 2 people whose data exists on the plaform, but as this number increases, it'll be helpful to be able to identify whose information is being requested.
+
 ### Code Structure
 
 The code-base contains the following directories and files
@@ -102,11 +104,11 @@ In case of the query not about the user, it is seen as a general topic, which go
 
 If the flow has reached the GENERATION_NODE, it uses  the information provided from the RAG, Chat History, or the Search to respond to the user-query. 
 
-Post the response, the flow is transferred back to the HUMAN_NODE.
+Post the response, the flow is transferred back to the HUMAN_NODE where questions can be asked again.
 
  
 
-![graph.png](ReadMe%2068f1cdee721f4dfb8545be86f46c6132/graph.png)
+![GRAPH](https://github.com/vivekphuloria/obz-rag-app/blob/main/graph.png)
 
 To allow continuity, and allow human-in-the-loop, a SQLite based memory checkpointing was used.  
 
