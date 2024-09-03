@@ -2,17 +2,30 @@ from langchain_openai.embeddings import OpenAIEmbeddings
 from langchain_openai import ChatOpenAI
 from dotenv import load_dotenv
 load_dotenv()
+import os
 
-PERSON_NAME = "Vivek Phuloria"
+def get_all_person_names(folder):
+    l_names = []
+    for file_name in os.listdir(folder):
+        if not(os.path.isdir(file_name)):
+            l_names.append(file_name.split(' ')[0])
+    return list(set(l_names))
+
+
 PINCONE_VECTORSTORE_INDEX_NAME = 'obz-rag-app'
 RETRIVER_FETCH_K = 10
 
 HUMAN_NODE      = 'HUMAN_NODE'
 CLASSIFY_NODE   = 'CLASSIFY_NODE'
-SEARCH_NODE     = 'SEARCH_NODE'
-INVALID_NODE  = 'UNRELATED_NODE'
+PERSON_NAME_NODE   = 'PERSON_NAME_NODE'
+ROUTER_NODE   = 'ROUTER_NODE'
+SEARCH_NODE   = 'SEARCH_NODE'
+INVALID_NODE  = 'INVALID_NODE'
 RETRIVER_NODE   = 'RETRIVER_NODE'
 GENERATION_NODE = 'GENERATION_NODE'
+
+RAG_DATA_FOLDER = './rag_data'
+LIST_PERSON_NAME = get_all_person_names(RAG_DATA_FOLDER)
 
 
 ALL_TAG_DESCRIPTION = {

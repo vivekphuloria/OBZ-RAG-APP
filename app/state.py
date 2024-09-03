@@ -15,6 +15,8 @@ class GraphState(TypedDict):
     """
 
     question: str
+    person_name:str
     classification: List[str]
     documents: List[str]
+    hardcoded_response: str
     messages:  Annotated[list, add_messages]

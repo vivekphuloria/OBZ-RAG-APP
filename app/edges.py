@@ -4,9 +4,16 @@ from .consts import RETRIVER_NODE, INVALID_NODE, SEARCH_NODE, GENERATION_NODE, M
 ## Defining Conditional Edges
 def func_clf_router(state: GraphState) -> str:
     s_clf = set(state['classification']) 
-    
+
+    if (state['classification'] in METADATA_TAGS and state['person_name']=='') or \
+        ('Personal' in state['classification']) or \
+        ('Others' in state['classification']):
+
+        return 'INVALID'
+
+
     # If the query requires any information about the metadata
-    if len(s_clf.intersection(set(METADATA_TAGS)))>0:
+    elif len(s_clf.intersection(set(METADATA_TAGS)))>0:
         return 'RETRIVER'
 
     # If question only requests information from previous, without any other context

@@ -2,9 +2,8 @@ from langchain.prompts import ChatPromptTemplate
 from langchain_core.pydantic_v1 import BaseModel, Field
 from langchain_core.runnables import RunnableParallel, RunnablePassthrough, RunnableLambda
 from langchain_core.output_parsers import StrOutputParser
-from langchain import hub
-
-from .consts import ALL_TAG_DESCRIPTION, METADATA_TAGS
+from fuzzywuzzy import process
+from .consts import ALL_TAG_DESCRIPTION, METADATA_TAGS, LIST_PERSON_NAME
 
 
 ## Structured Output for Query Classification and RAG-Document 
@@ -18,6 +17,21 @@ class InputClassification(BaseModel):
 get_description_string = lambda d_desc: '\n'.join([f"- {k} : {v}" for k,v in  d_desc.items()])
 get_tags_list_string = lambda d_desc: ', '.join([f'"{k}"' for k in d_desc.keys()])
 
+
+def get_person_name_chain(llm):
+    ## Function for fuzzy matching of name to list of names
+    def get_match(query):
+        match = process.extractOne(query, LIST_PERSON_NAME, score_cutoff=60)
+        return match[0] if match else ''
+
+    prompt = ChatPromptTemplate.from_messages([
+    ('system', f"""You will be given a question about a person. 
+     You have to extract the name of the person. If you don't think there's any person within the question, return an empty string('')
+     Respond with only the person name and nothing else."""),
+        ("human","{input}")
+        ])
+    chain = prompt | llm | StrOutputParser() | RunnableLambda(get_match)
+    return chain
 
 
 def get_query_classification_chain(llm):
@@ -75,11 +89,28 @@ def get_generation_chain(llm):
          If the information required for the answer is not present in the mentioned sources, respond with "Information not present in context".
          Your answer should be markdown friendly - highlight the proper nounds and use bullets or other emphasis whereever neccessary.
          Question: {question} 
-         Context: {context}
+         Context: {documents}
          Chat History: {history}
          Answer: """)
     ])
     chain =  prompt | llm | StrOutputParser()
     return chain
 
+def get_search_generation_chain(llm):
+    prompt =ChatPromptTemplate.from_messages([
+        ("human","""
+         You are an assistant for a question-answering chatbot. 
+         You have been provided the user's current question, the list of top search results for the query, and may also be provided with the previous chat of the user.
+         Answer the user's question based on the  search results and if there is any relevant information in the chat history.
+         If all these sources do not answer the question, respond that you don't know the answer to this question.
+         Your answer should be markdown friendly - highlight the proper nounds and use bullets or other emphasis whereever neccessary.
+
+         Question: {question} 
+         Search Results: {documents}
+         Chat History: {history}
+         
+         After your answer, tell the user that the primary function of the chatbot was to answer question about a person's professsional journey, and from the next question they should try to stick to that theme.  
+         """)])
+    chain =  prompt | llm | StrOutputParser()
+    return chain
 
