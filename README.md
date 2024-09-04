@@ -1,15 +1,10 @@
 # ReadMe
 
-## Functionality
-
-- System Architecture
-- Evaluation
-- Demonstration
+Video Demo : https://www.youtube.com/watch?v=OdSCK_NQU48
 
 # Overview
 
 The app aims at creating a chatbot, which can be answer questions about an Individual. 
-
 The app is powered by RAG (Retrieval Augmented Generation), wherein data about the person is ingested to a  vector-store, and queried based on the user query. 
 
 # How to Set UP
@@ -57,6 +52,8 @@ During the runtime, the name of the person is also extracted from the query. Cur
 The code-base contains the following directories and files
 
 - 📄 .env → Contains API secrets
+- 📄 list_people_names.txt → Dynamically created list of people idenfied from the rag_data folder 
+- 📄 graph.png → Dynamically created image of the graph nodes and edges 
 - 📄 st_app.py → Streamlit app that imports the graph from app.graph and renders it into a chatbot interface
 - 📄 obz-rag-app.sqlite → Memory for storing the conversations through the graph states
 - 📄 ingest.ipynb → Contains the different steps to ingest different files from rag_data. Have made a notebook and not a .py file, because this is an iterative process of testing different document loaders, splitters, and the tagging process.
@@ -94,7 +91,7 @@ Langgraph allows creation of a control-flow graph with different nodes, each per
 
 The graph state contains the user-question, it’s classificaitons, documents retrived(if any), and a list of messages. 
 
-The code starts from the HUMAN_NODE, where the query is added through the streamlit front-end. This query goes to the CLASSIFICATION_NODE where an LLM chain identifies what is query about.  From here, the flow may now be redirected to different nodes based on it’s classification.
+The code starts from the HUMAN_NODE, where the query is added through the streamlit front-end. This query parallely goes to the CLASSIFICATION_NODE where an LLM chain identifies what topic the query us about, and the PERSON_NAME_NODE which inferrs the person's name mentioned in the query, and matches to a list of people whose data has been uploaded.  From here, the flow goes to the ROUTER_NODE from where it may now be redirected to different nodes based on it’s classification.
 
 If query is about the person’s proffesional profile -  Education, Workex, Skills, Interests, Contact, Awards, it is redirected to the RETRIVER_NODE <which retrives data for the RAG>. 
 
